@@ -23,7 +23,6 @@ AC_HEADERS_UPLOAD = {
     'X-Angie-AuthApiToken': AC_TOKEN
 }
 
-
 def get_activecollabusers():
     ac_users = {}
     users = get_activecollab('users')
@@ -50,19 +49,20 @@ JIRA_SEARCH_URL = JIRA_BASE_URL + 'search/'
 
 JIRA_PROJECTS = {
     # 'DHBOX': 600,
-    #'DPRR': 606,
+    # 'DPRR': 606,
     # 'IOSPE': 604,
-    'ITSYS': 584,
-    #'IPM': 597,
-    'KOLO': 599,
-    #'MOI': 610,
-    'OCVE': 608,
-    'OWRI': 611,
-    #'PBW': 605,
-    'SCRAMBLED': 609,
-    #'SHIRLEY': 602,
-    #'TVOF': 607
+    # 'ITSYS': 584,
+    'IPM': 597,
+    # 'KOLO': 599,
+    # 'MOI': 610,
+    # 'OCVE': 608,
+    # 'OWRI': 611,
+    # 'PBW': 605,
+    # 'SCRAMBLED': 609,
+    # 'SHIRLEY': 602,
+    # 'TVOF': 607
 }
+
 
 def main():
     with open('jira_secrets.json.nogit') as f:
@@ -114,7 +114,7 @@ def import_issue(issue, jira_auth, ac_project_id, tasklists):
         try:
             task_name = '{}: {}'.format(key, summary)[:150]
         except:
-            # Invalid character in 
+            # Invalid character in
             task_name = summary[:150]
 
         print(task_name)
@@ -124,9 +124,6 @@ def import_issue(issue, jira_auth, ac_project_id, tasklists):
             labels.append(label)
 
         description = fields['description']
-
-        reporter = fields['reporter']['emailAddress']
-        assignee = fields['assignee']['emailAddress']
 
         priority = fields['priority']['name']
         label = get_label_for_priority(priority)
@@ -147,14 +144,14 @@ def import_issue(issue, jira_auth, ac_project_id, tasklists):
             if label:
                 labels.append(label)
 
-        assignee = get_activecollabuser(assignee)
+        assignee = get_activecollab_user(fields['assignee'])
         updated = convert_date_to_timestamp(fields['updated'])
 
         payload = {
             'name': task_name,
             'assignee_id': assignee,
             'body': description,
-            'created_by_id': get_activecollabuser(reporter),
+            'created_by_id': get_activecollab_user(fields['reporter']),
             'labels': labels,
             'task_list_id': list_id,
             'is_important': is_important(priority),
@@ -203,7 +200,7 @@ def import_comments(task_id, fields):
 
         for c in comments:
             comment_body = c['body']
-            comment_email = c['author']['emailAddress']
+            comment_author = c['author']
 
             payload = {
                 'body': comment_body,
@@ -227,8 +224,8 @@ def import_comments(task_id, fields):
                 'comments/{}'.format(comment_id),
                 {
                     'updated_on': updated,
-                    'created_by_id': get_activecollabuser(comment_email),
-                    'updated_by_id': get_activecollabuser(comment_email)
+                    'created_by_id': get_activecollab_user(comment_author),
+                    'updated_by_id': get_activecollab_user(comment_author)
                 })
 
 
@@ -339,9 +336,39 @@ def get_label_for_resolution(resolution):
 
 DEFAULT_USER = 'brianmaher@me.com'
 
-def get_activecollabuser(email):
+
+def get_activecollab_user(jira_user):
+    email = jira_user['emailAddress']
+
+    if not email:
+        email = '{}@email.not.available'.format(jira_user['key'])
+
     if email in ac_users:
         return ac_users[email]
+
+    email = '{}.inactive'.format(email)
+
+    if email in ac_users:
+        return ac_users[email]
+
+    return create_activecollab_user(email, jira_user['displayName'])
+
+
+def create_activecollab_user(email, name):
+    r = post_activecollab('/users', {
+        'type': 'Client',
+        'email': email,
+        'display_name': name,
+        'password': 'this password needs to be reset!'
+    })
+
+    if r and 'single' in r and 'id' in r['single']:
+        user_id = r['single']['id']
+        ac_users[email] = user_id
+
+        return user_id
+    else:
+        print('Failed to create user for {}'.format(email))
 
     return ac_users[DEFAULT_USER]
 
@@ -396,3 +423,5 @@ def upload_activecollab(files):
 
 if __name__ == '__main__':
     main()
+
+
