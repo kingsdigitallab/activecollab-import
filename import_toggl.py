@@ -38,10 +38,11 @@ def main():
             print(name)
 
             params = {
-                'value': data['actual_hours'],
-                'job_type_id': 1,
-                'user_id': 32,
+                'billable_status': 0,
+                'job_type_id': 14,
                 'record_date': current_date,
+                'user_id': 32,
+                'value': data['actual_hours'],
                 'summary': 'Total time imported from Toggl'
             }
 
