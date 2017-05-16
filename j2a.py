@@ -4,16 +4,16 @@ import json
 import time
 
 import requests
+
 import simplejson
 from dateutil.parser import parse
 
 with open('ac_secrets.json.nogit') as f:
-        ac_secrets = simplejson.loads(f.read())
+    ac_secrets = simplejson.loads(f.read())
 
 
 AC_BASE_URL = 'https://app.activecollab.com/148987/api/v1/'
 AC_TOKEN = ac_secrets['ac_token']
-
 AC_HEADERS = {
     'X-Angie-AuthApiToken': AC_TOKEN,
     'Content-Type': 'application/json; charset=utf-8'
@@ -22,6 +22,7 @@ AC_HEADERS = {
 AC_HEADERS_UPLOAD = {
     'X-Angie-AuthApiToken': AC_TOKEN
 }
+
 
 def get_activecollabusers():
     ac_users = {}
@@ -423,5 +424,3 @@ def upload_activecollab(files):
 
 if __name__ == '__main__':
     main()
-
-
