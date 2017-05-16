@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import json
+import activecollab as ac
 import time
 
 import requests
@@ -8,41 +8,7 @@ import requests
 import simplejson
 from dateutil.parser import parse
 
-with open('ac_secrets.json.nogit') as f:
-    ac_secrets = simplejson.loads(f.read())
-
-
-AC_BASE_URL = 'https://app.activecollab.com/148987/api/v1/'
-AC_TOKEN = ac_secrets['ac_token']
-AC_HEADERS = {
-    'X-Angie-AuthApiToken': AC_TOKEN,
-    'Content-Type': 'application/json; charset=utf-8'
-}
-
-AC_HEADERS_UPLOAD = {
-    'X-Angie-AuthApiToken': AC_TOKEN
-}
-
-
-def get_activecollabusers():
-    ac_users = {}
-    users = get_activecollab('users')
-
-    for user in users:
-        ac_users[user['email']] = user['id']
-
-    return ac_users
-
-
-def get_activecollab(api_path, params=None):
-    r = requests.get('{}{}'.format(
-        AC_BASE_URL, api_path), params=simplejson.dumps(params),
-        headers=AC_HEADERS)
-
-    return r.json()
-
-
-ac_users = get_activecollabusers()
+ac_users = ac.get_activecollabusers()
 
 
 JIRA_BASE_URL = 'https://jira.dighum.kcl.ac.uk/rest/api/latest/'
@@ -87,7 +53,7 @@ def main():
         if r.status_code == 200:
             issues = r.json()['issues']
 
-            tasklists = get_activecollab_tasklists(ac_project_id)
+            tasklists = ac.get_activecollab_tasklists(ac_project_id)
 
             for issue in issues:
                 import_issue(issue, jira_auth, ac_project_id, tasklists)
@@ -165,7 +131,7 @@ def import_issue(issue, jira_auth, ac_project_id, tasklists):
             payload['completed_by_id'] = assignee
             payload['completed_on'] = updated
 
-        r = post_activecollab(
+        r = ac.post_activecollab(
             'projects/{}/tasks'.format(ac_project_id), params=payload)
 
         if r and 'single' in r and 'id' in r['single']:
@@ -173,10 +139,10 @@ def import_issue(issue, jira_auth, ac_project_id, tasklists):
 
             # updates the date fields of the task with the dates from jira
             created = convert_date_to_timestamp(fields['created'])
-            put_activecollab(
+            ac.put_activecollab(
                 'projects/{}/tasks/{}'.format(ac_project_id, task_id),
                 {'created_on': created})
-            put_activecollab(
+            ac.put_activecollab(
                 'projects/{}/tasks/{}'.format(ac_project_id, task_id),
                 {'updated_on': updated})
 
@@ -207,7 +173,7 @@ def import_comments(task_id, fields):
                 'body': comment_body,
             }
 
-            r = post_activecollab(
+            r = ac.post_activecollab(
                 'comments/task/{}'.format(task_id), params=payload)
 
             comment_id = r['single']['id']
@@ -215,13 +181,13 @@ def import_comments(task_id, fields):
             # updates the date fields
             created = convert_date_to_timestamp(c['created'])
             updated = convert_date_to_timestamp(c['updated'])
-            put_activecollab('comments/{}'.format(comment_id),
+            ac.put_activecollab('comments/{}'.format(comment_id),
                              {'created_on': created})
-            put_activecollab('comments/{}'.format(comment_id),
+            ac.put_activecollab('comments/{}'.format(comment_id),
                              {'updated_on': updated})
 
             # needs created_by put here as adding the date
-            put_activecollab(
+            ac.put_activecollab(
                 'comments/{}'.format(comment_id),
                 {
                     'updated_on': updated,
@@ -249,15 +215,15 @@ def import_attachments(ac_project_id, task_id, fields, jira_auth):
                 ]
             }
 
-            r = upload_activecollab(jira_file)
+            r = ac.upload_activecollab(jira_file)
 
             file_code = r[0]['code']
             print('Uploaded file {}, got file code: {}'.format(
                 attach_filename, file_code))
-            r = put_activecollab('projects/{}'.format(
+            r = ac.put_activecollab('projects/{}'.format(
                 ac_project_id),
                 {'attach_uploaded_files':  [file_code]})
-            r = put_activecollab('projects/{}/tasks/{}'.format(
+            r = ac.put_activecollab('projects/{}/tasks/{}'.format(
                 ac_project_id, task_id),
                 {'attach_uploaded_files':  [file_code]})
 
@@ -335,6 +301,7 @@ def get_label_for_resolution(resolution):
 
     return None
 
+
 DEFAULT_USER = 'brianmaher@me.com'
 
 
@@ -356,7 +323,7 @@ def get_activecollab_user(jira_user):
 
 
 def create_activecollab_user(email, name):
-    r = post_activecollab('/users', {
+    r = ac.post_activecollab('/users', {
         'type': 'Client',
         'email': email,
         'display_name': name,
@@ -390,36 +357,6 @@ def is_completed(status):
 
 def convert_date_to_timestamp(value):
     return int(time.mktime(parse(value).timetuple()))
-
-
-def get_activecollab_tasklists(project):
-    ac_tasklists = {}
-    tasklists = get_activecollab('projects/{}/task-lists'.format(project))
-
-    for tl in tasklists:
-        ac_tasklists[tl['name']] = tl['id']
-
-    return ac_tasklists
-
-
-def post_activecollab(api_path, params=None):
-    r = requests.post('{}{}'.format(
-        AC_BASE_URL, api_path), data=simplejson.dumps(params),
-        headers=AC_HEADERS)
-
-    return r.json()
-
-
-def put_activecollab(api_path, params=None):
-    r = requests.put('{}{}'.format(AC_BASE_URL, api_path), data=json.dumps(
-        params), headers=AC_HEADERS)
-    return r.json()
-
-
-def upload_activecollab(files):
-    r = requests.post('{}upload-files'.format(
-        AC_BASE_URL), files=files, headers=AC_HEADERS_UPLOAD)
-    return r.json()
 
 
 if __name__ == '__main__':
