@@ -7,6 +7,7 @@ import sys
 import time
 from dateutil.parser import parse
 import pprint
+import os
 
 ac_url = "https://app.activecollab.com/148987/api/v1/"
 ac_auth_field = "X-Angie-AuthApiToken"
@@ -275,6 +276,6 @@ for trello_list in trello_lists:
                         "file_01": aws_file_code,
                         "is_hidden_from_clients":"false"
                     }
-                    
+                    os.remove("attachments/{}".format(filename))
                     post_activecollab('projects/{}/files/batch'.format(ac_card_id), aws_move)
             
