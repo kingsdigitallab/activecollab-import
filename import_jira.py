@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import time
 
 import requests
@@ -214,6 +215,11 @@ def import_attachments(ac_project_id, task_id, fields, jira_auth):
             r = ac.put_activecollab('projects/{}/tasks/{}'.format(
                 ac_project_id, task_id),
                 {'attach_uploaded_files':  [file_code]})
+
+            try:
+                os.remove(jira_file)
+            except:
+                pass
 
 
 ISSUE_TYPES_MAPPING = {
