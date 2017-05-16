@@ -14,21 +14,10 @@ ac_users = ac.get_activecollabusers()
 JIRA_BASE_URL = 'https://jira.dighum.kcl.ac.uk/rest/api/latest/'
 JIRA_SEARCH_URL = JIRA_BASE_URL + 'search/'
 
-JIRA_PROJECTS = {
-    # 'DHBOX': 600,
-    # 'DPRR': 606,
-    # 'IOSPE': 604,
-    # 'ITSYS': 584,
-    'IPM': 597,
-    # 'KOLO': 599,
-    # 'MOI': 610,
-    # 'OCVE': 608,
-    # 'OWRI': 611,
-    # 'PBW': 605,
-    # 'SCRAMBLED': 609,
-    # 'SHIRLEY': 602,
-    # 'TVOF': 607
-}
+jira_projects = {}
+
+with open('jira_projects_to_import.json') as f:
+    jira_projects = simplejson.loads(f.read())
 
 
 def main():
@@ -37,8 +26,8 @@ def main():
 
     jira_auth = (secrets['username'], secrets['password'])
 
-    for jira_project_key in JIRA_PROJECTS:
-        ac_project_id = JIRA_PROJECTS[jira_project_key]
+    for jira_project_key in jira_projects:
+        ac_project_id = jira_projects[jira_project_key]
 
         print(jira_project_key)
 
