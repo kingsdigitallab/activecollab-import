@@ -276,6 +276,10 @@ for trello_list in trello_lists:
                         "file_01": aws_file_code,
                         "is_hidden_from_clients":"false"
                     }
-                    os.remove("attachments/{}".format(filename))
+
+                    try:
+                        os.remove("attachments/{}".format(filename))
+                    except:
+                        pass
                     post_activecollab('projects/{}/files/batch'.format(ac_card_id), aws_move)
             
