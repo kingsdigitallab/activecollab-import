@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
-import activecollab as ac
 import time
 
 import requests
 
+import activecollab as ac
 import simplejson
 from dateutil.parser import parse
 
 ac_users = ac.get_activecollabusers()
-
 
 JIRA_BASE_URL = 'https://jira.dighum.kcl.ac.uk/rest/api/latest/'
 JIRA_SEARCH_URL = JIRA_BASE_URL + 'search/'
@@ -171,9 +170,9 @@ def import_comments(task_id, fields):
             created = convert_date_to_timestamp(c['created'])
             updated = convert_date_to_timestamp(c['updated'])
             ac.put_activecollab('comments/{}'.format(comment_id),
-                             {'created_on': created})
+                                {'created_on': created})
             ac.put_activecollab('comments/{}'.format(comment_id),
-                             {'updated_on': updated})
+                                {'updated_on': updated})
 
             # needs created_by put here as adding the date
             ac.put_activecollab(
