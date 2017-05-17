@@ -9,6 +9,8 @@ import activecollab as ac
 import simplejson
 from dateutil.parser import parse
 
+AC_DEFAULT_USER = 32
+
 ac_users = ac.get_activecollabusers()
 
 JIRA_BASE_URL = 'https://jira.dighum.kcl.ac.uk/rest/api/latest/'
@@ -296,8 +298,6 @@ def get_label_for_resolution(resolution):
     return None
 
 
-DEFAULT_USER = 'brianmaher@me.com'
-
 
 def get_activecollab_user(jira_user):
     email = jira_user['emailAddress']
@@ -332,7 +332,7 @@ def create_activecollab_user(email, name):
     else:
         print('Failed to create user for {}'.format(email))
 
-    return ac_users[DEFAULT_USER]
+    return AC_DEFAULT_USER
 
 
 def is_important(priority):
