@@ -8,6 +8,7 @@ import time
 from dateutil.parser import parse
 import pprint
 import os
+import simplejson
 
 ac_url = "https://app.activecollab.com/148987/api/v1/"
 ac_auth_field = "X-Angie-AuthApiToken"
@@ -203,23 +204,30 @@ for trello_list in trello_lists:
             trello_card_actions = get_trello("cards/{}/actions".format(card_id))
 
             if trello_card_actions:
+                # Reverse the list
                 trello_card_actions = trello_card_actions[::-1]
 
-            for trello_action in trello_card_actions:
-                if trello_action['type'] == 'commentCard': 
-                    action_text = trello_action['data']['text']
-                    action_uid = trello_action['idMemberCreator']
-                    action_uid = get_user(action_uid)
-                    
-                    action_date = trello_action['date']
-                    action_date = int(time.mktime(parse(action_date).timetuple()))
+                # Create a discussion:
+                discussion_vars = { "name" : "Trello comments" }
+                discussion = post_activecollab("/projects/{}/discussions".format(ac_card_id), discussion_vars)
+                ac_discussion_id = discussion['single']['id']
 
-                    comment_vars = { "name" : "Trello Comment", "body" : action_text, "created_by_id" : action_uid, "updated_by_id" : action_uid }
-                    
-                    comment_id = post_activecollab('projects/{}/notes'.format(ac_card_id), comment_vars)['single']['id']
 
-                    put_activecollab('projects/{}/notes/{}'.format(ac_card_id, comment_id), { "created_on" : action_date })
-                    put_activecollab('projects/{}/notes/{}'.format(ac_card_id, comment_id), { "updated_on" : action_date })
+                for trello_action in trello_card_actions:
+                    if trello_action['type'] == 'commentCard': 
+                        action_text = trello_action['data']['text']
+                        action_uid = trello_action['idMemberCreator']
+                        action_uid = get_user(action_uid)
+                        
+                        action_date = trello_action['date']
+                        action_date = int(time.mktime(parse(action_date).timetuple()))
+
+                        comment_vars = { "body" : action_text, "created_by_id" : action_uid, "updated_by_id" : action_uid }
+                        
+                        comment_id = post_activecollab('/comments/discussion/{}'.format(ac_discussion_id), comment_vars)['single']['id']
+
+                        put_activecollab('comments/{}'.format(comment_id), { "created_on" : action_date, "created_by_id" : action_uid, "updated_by_id" : action_uid })
+                        put_activecollab('comments/{}'.format(comment_id), { "updated_on" : action_date , "created_by_id" : action_uid, "updated_by_id" : action_uid})
             
             # Attachments - aws or gdrive.
             # BIG warning: This google drive API is ***UNDOCUMENTED***
