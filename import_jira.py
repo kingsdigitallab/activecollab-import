@@ -255,7 +255,7 @@ def get_label_for_priority(priority):
 
 
 ISSUE_STATUS_LIST_MAPPING = {
-    'Open': 'Backlog',
+    'Open': 'Inbox',
     'In Progress': 'In Progress',
     'Resolved': 'Done',
     'Reopened': 'To Do',
