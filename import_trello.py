@@ -160,7 +160,7 @@ def get_user(uid):
     try:
         return users[uid]
     except:
-        return '32'
+        return '36'
 
 for trello_list in trello_lists:
     list_name = trello_list['name'].upper()

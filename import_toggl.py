@@ -41,7 +41,7 @@ def main():
                 'billable_status': 0,
                 'job_type_id': 14,
                 'record_date': current_date,
-                'user_id': 32,
+                'user_id': 36,
                 'value': data['actual_hours'],
                 'summary': 'Total time imported from Toggl'
             }

@@ -9,7 +9,7 @@ import activecollab as ac
 import simplejson
 from dateutil.parser import parse
 
-AC_DEFAULT_USER = 32
+AC_DEFAULT_USER = 36
 
 ac_users = ac.get_activecollabusers()
 
