@@ -316,7 +316,7 @@ def get_activecollab_user(jira_user):
     return create_activecollab_user(email, jira_user['displayName'])
 
 def clean_jira_body(body):
-    return body.replace("\r\n", "<br><br>")
+    return body.replace("\r\n", "<br>")
 
 def create_activecollab_user(email, name):
     r = ac.post_activecollab('/users', {
