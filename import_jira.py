@@ -303,12 +303,12 @@ def get_activecollab_user(jira_user):
     email = jira_user['emailAddress']
 
     if not email:
-        email = '{}@email.not.available'.format(jira_user['key'])
+        email = '{}@example.com'.format(jira_user['key'])
 
     if email in ac_users:
         return ac_users[email]
 
-    email = '{}.inactive'.format(email)
+    email = '{}@example.com'.format(jira_user['key'])
 
     if email in ac_users:
         return ac_users[email]
