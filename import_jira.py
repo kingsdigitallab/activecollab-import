@@ -81,7 +81,7 @@ def import_issue(issue, jira_auth, ac_project_id, tasklists):
         if label:
             labels.append(label)
 
-        description = fields['description']
+        description = clean_jira_body(fields['description'])
 
         priority = fields['priority']['name']
         label = get_label_for_priority(priority)
@@ -157,7 +157,7 @@ def import_comments(task_id, fields):
         comments = comments[::-1]
 
         for c in comments:
-            comment_body = c['body']
+            comment_body = clean_jira_body(c['body'])
             comment_author = c['author']
 
             payload = {
@@ -315,6 +315,8 @@ def get_activecollab_user(jira_user):
 
     return create_activecollab_user(email, jira_user['displayName'])
 
+def clean_jira_body(body):
+    return body.replace("\r\n", "<br>")
 
 def create_activecollab_user(email, name):
     r = ac.post_activecollab('/users', {
