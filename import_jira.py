@@ -261,7 +261,8 @@ ISSUE_STATUS_LIST_MAPPING = {
     'Reopened': 'To Do',
     'Closed': 'Done',
     'Waiting for Feedback': 'To Do',
-    'Done': 'Done'
+    'Done': 'Done',
+    'To Do': 'Inbox' 
 }
 
 
@@ -326,7 +327,6 @@ def create_activecollab_user(email, name):
         'display_name': name,
         'password': 'this password needs to be reset!'
     })
-
     if r and 'single' in r and 'id' in r['single']:
         user_id = r['single']['id']
         ac_users[email] = user_id
@@ -346,7 +346,7 @@ def is_important(priority):
 
 
 def is_completed(status):
-    if status in ['Resolved', 'Closed']:
+    if status in ['Resolved', 'Closed', 'Done']:
         return True
 
     return False
