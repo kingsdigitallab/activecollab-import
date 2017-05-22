@@ -260,7 +260,8 @@ ISSUE_STATUS_LIST_MAPPING = {
     'Resolved': 'Done',
     'Reopened': 'To Do',
     'Closed': 'Done',
-    'Waiting for Feedback': 'To Do'
+    'Waiting for Feedback': 'To Do',
+    'Done': 'Done'
 }
 
 
@@ -325,7 +326,6 @@ def create_activecollab_user(email, name):
         'display_name': name,
         'password': 'this password needs to be reset!'
     })
-
     if r and 'single' in r and 'id' in r['single']:
         user_id = r['single']['id']
         ac_users[email] = user_id
