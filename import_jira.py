@@ -260,7 +260,8 @@ ISSUE_STATUS_LIST_MAPPING = {
     'Resolved': 'Done',
     'Reopened': 'To Do',
     'Closed': 'Done',
-    'Waiting for Feedback': 'To Do'
+    'Waiting for Feedback': 'To Do',
+    'Done': 'Done'
 }
 
 
