@@ -262,7 +262,7 @@ ISSUE_STATUS_LIST_MAPPING = {
     'Closed': 'Done',
     'Waiting for Feedback': 'To Do',
     'Done': 'Done',
-    'To Do': 'Inbox'
+    'To Do': 'Inbox' 
 }
 
 
