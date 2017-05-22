@@ -261,7 +261,8 @@ ISSUE_STATUS_LIST_MAPPING = {
     'Reopened': 'To Do',
     'Closed': 'Done',
     'Waiting for Feedback': 'To Do',
-    'Done': 'Done'
+    'Done': 'Done',
+    'To Do': 'Inbox'
 }
 
 
@@ -345,7 +346,7 @@ def is_important(priority):
 
 
 def is_completed(status):
-    if status in ['Resolved', 'Closed']:
+    if status in ['Resolved', 'Closed', 'Done']:
         return True
 
     return False
