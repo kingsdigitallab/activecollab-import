@@ -299,7 +299,7 @@ ISSUE_STATUS_LIST_MAPPING = {
     'Closed': 'Done',
     'Waiting for Feedback': 'To Do',
     'Done': 'Done',
-    'To Do': 'Inbox' 
+    'To Do': 'Inbox'
 }
 
 
@@ -324,7 +324,7 @@ def get_label_for_status(status):
 
 ISSUE_RESOLUTION_MAPPING = {
     'Fixed': 'STATUS: FIXED',
-    'Won\'t Fix': 'STATUS: WONTFIX',
+    'Won\'t Fix': 'STATUS: WONT FIX',
     'Duplicate': 'STATUS: DUPLICATE',
     'Cannot Reproduce': 'STATUS: CANNOT REPRODUCE'
 }
