@@ -18,42 +18,79 @@ JIRA_SEARCH_URL = JIRA_BASE_URL + 'search/'
 
 jira_projects = {}
 
+jira_projects_imported = []
+jira_projects_failed = []
+jira_project_current = ""
+
 with open('jira_projects_to_import.json') as f:
     jira_projects = simplejson.loads(f.read())
 
 
 def main():
-    with open('jira_secrets.json.nogit') as f:
-        secrets = simplejson.loads(f.read())
+    try:
+        with open('jira_secrets.json.nogit') as f:
+            secrets = simplejson.loads(f.read())
 
-    jira_auth = (secrets['username'], secrets['password'])
+        jira_auth = (secrets['username'], secrets['password'])
 
-    for jira_project_key in jira_projects:
-        ac_project_id = jira_projects[jira_project_key]
+        for jira_project_key in jira_projects:
+            jira_project_current = jira_project_key
+            ac_project_id = jira_projects[jira_project_key]
 
-        print(jira_project_key)
+            print(jira_project_key)
 
-        params = {
-            'jql': 'project={}'.format(jira_project_key),
-            'maxResults': '-1',
-            'fields': ['self']
-        }
+            params = {
+                'jql': 'project={}'.format(jira_project_key),
+                'maxResults': '-1',
+                'fields': ['self']
+            }
 
-        r = requests.get(JIRA_SEARCH_URL, auth=jira_auth, params=params)
+            r = requests.get(JIRA_SEARCH_URL, auth=jira_auth, params=params)
 
-        if r.status_code == 200:
-            issues = r.json()['issues']
+            if r.status_code == 200:
+                issues = r.json()['issues']
 
-            tasklists = ac.get_activecollab_tasklists(ac_project_id)
+                tasklists = ac.get_activecollab_tasklists(ac_project_id)
 
-            for issue in issues:
-                import_issue(issue, jira_auth, ac_project_id, tasklists)
+                for issue in issues:
+                    import_issue(issue, jira_auth, ac_project_id, tasklists)
 
-        else:
-            print('Failed to get issues for {} project'.format(
-                jira_project_key))
+                jira_projects_imported.append(jira_project_key)
+            else:
+                print('Failed to get issues for {} project'.format(
+                    jira_project_key))
+                jira_projects_failed.append(jira_project_key)
 
+            print()
+
+        print "****************************************"
+        print "Import Script Finished. Project status report."
+        print "****************************************"
+        if len(jira_projects_imported):
+            print "The following projects imported successfully:"
+            print " ".join(jira_projects_imported)
+        if len(jira_projects_failed):
+            print "The following projects failed to import:"
+            print " ".join(jira_projects_failed)
+        print "****************************************"
         print()
+
+    except Exception, e:
+        print e
+        print()
+        print "****************************************"
+        print "The above error occured. Project status report."
+        print "****************************************"
+        if len(jira_projects_imported):
+            print "The following projects imported successfully:"
+            print " ".join(jira_projects_imported)
+        if len(jira_projects_failed):
+            print "The following projects failed to import:"
+            print " ".join(jira_projects_failed)
+        print "The error occured in project: {}".format(jira_project_current)
+        print "****************************************"
+        print()
+
 
 
 def import_issue(issue, jira_auth, ac_project_id, tasklists):
@@ -358,3 +395,4 @@ def convert_date_to_timestamp(value):
 
 if __name__ == '__main__':
     main()
+
