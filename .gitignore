@@ -103,3 +103,5 @@ ENV/
 # Project Specific
 *.nogit
 attachments/
+
+jira_projects_to_import.json
