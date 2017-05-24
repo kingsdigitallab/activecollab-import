@@ -4,10 +4,10 @@ import os
 import time
 
 import requests
-
-import activecollab as ac
 import simplejson
 from dateutil.parser import parse
+
+import activecollab as ac
 
 AC_DEFAULT_USER = 36
 
@@ -20,7 +20,7 @@ jira_projects = {}
 
 jira_projects_imported = []
 jira_projects_failed = []
-jira_project_current = ""
+jira_project_current = ''
 
 with open('jira_projects_to_import.json') as f:
     jira_projects = simplejson.loads(f.read())
@@ -63,34 +63,38 @@ def main():
 
             print()
 
-        print "****************************************"
-        print "Import Script Finished. Project status report."
-        print "****************************************"
-        if len(jira_projects_imported):
-            print "The following projects imported successfully:"
-            print " ".join(jira_projects_imported)
-        if len(jira_projects_failed):
-            print "The following projects failed to import:"
-            print " ".join(jira_projects_failed)
-        print "****************************************"
-        print()
+        print('****************************************')
+        print('Import Script Finished. Project status report.')
+        print('****************************************')
 
-    except Exception, e:
-        print e
-        print()
-        print "****************************************"
-        print "The above error occured. Project status report."
-        print "****************************************"
         if len(jira_projects_imported):
-            print "The following projects imported successfully:"
-            print " ".join(jira_projects_imported)
-        if len(jira_projects_failed):
-            print "The following projects failed to import:"
-            print " ".join(jira_projects_failed)
-        print "The error occured in project: {}".format(jira_project_current)
-        print "****************************************"
-        print()
+            print('The following projects imported successfully:')
+            print(' '.join(jira_projects_imported))
 
+        if len(jira_projects_failed):
+            print('The following projects failed to import:')
+            print(' '.join(jira_projects_failed))
+
+        print('****************************************')
+        print()
+    except Exception as e:
+        print(e)
+        print()
+        print('****************************************')
+        print('The above error occured. Project status report.')
+        print('****************************************')
+
+        if len(jira_projects_imported):
+            print('The following projects imported successfully:')
+            print(' '.join(jira_projects_imported))
+
+        if len(jira_projects_failed):
+            print('The following projects failed to import:')
+            print(' '.join(jira_projects_failed))
+
+        print('The error occured in project: {}'.format(jira_project_current))
+        print('****************************************')
+        print()
 
 
 def import_issue(issue, jira_auth, ac_project_id, tasklists):
@@ -337,7 +341,6 @@ def get_label_for_resolution(resolution):
     return None
 
 
-
 def get_activecollab_user(jira_user):
     email = jira_user['emailAddress']
 
@@ -354,8 +357,10 @@ def get_activecollab_user(jira_user):
 
     return create_activecollab_user(email, jira_user['displayName'])
 
+
 def clean_jira_body(body):
-    return body.replace("\r\n", "<br>")
+    return body.replace('\r\n', '<br>')
+
 
 def create_activecollab_user(email, name):
     r = ac.post_activecollab('/users', {
@@ -395,4 +400,3 @@ def convert_date_to_timestamp(value):
 
 if __name__ == '__main__':
     main()
-
